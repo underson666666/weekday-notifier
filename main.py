@@ -3,6 +3,7 @@ import datetime
 import os
 
 import requests
+from slack_sdk.webhook import WebhookClient
 
 import const
 
@@ -53,7 +54,8 @@ def main():
     else:
         msg += "です。"
 
-    notify_line(msg)
+    # notify_line(msg)
+    notify_slack(msg)
 
 
 def build_message(week_num, day_of_week):
@@ -101,6 +103,22 @@ def notify_line(message: str):
 
     if res.status_code != requests.codes.ok:
         print("failed to send message.")
+
+
+def notify_slack(message: str):
+    """notify to slack
+
+    Parameters
+    ----------
+    message: str
+        通知するメッセージ
+    """
+    hook_url = os.getenv("SLACK_HOOK_URL")
+    webhook = WebhookClient(hook_url)
+    try:
+        response = webhook.send(text=message)
+    except Exception as e:
+        print(str(e))
 
 
 if __name__ == "__main__":
